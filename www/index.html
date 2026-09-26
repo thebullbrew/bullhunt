@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1F3522">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BullHunt">
+<title>BullHunt — PA Game Lands</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="stylesheet" href="js/vendor/maplibre-gl.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- MAP TAB -->
+  <section id="tab-map" class="tab active">
+    <div id="map"></div>
+    <div id="map-topbar">
+      <button id="btn-layers" class="chip" title="Layers">Layers</button>
+      <button id="btn-download" class="chip" title="Download offline maps">Offline</button>
+      <button id="btn-locate" class="chip" title="My location">◎</button>
+    </div>
+    <div id="layer-panel" class="hidden">
+      <label><input type="checkbox" id="lyr-sgl" checked> State Game Lands</label>
+      <label><input type="checkbox" id="lyr-parking" checked> Parking areas</label>
+      <label><input type="checkbox" id="lyr-wmu"> WMU boundaries</label>
+      <label>Base map
+        <select id="sel-basemap">
+          <option value="sat">Satellite</option>
+          <option value="topo">Topo / streets</option>
+        </select>
+      </label>
+    </div>
+    <div id="offline-panel" class="hidden">
+      <h3>Offline map packs</h3>
+      <p class="muted">Downloads satellite tiles around a point so the map works with no signal.</p>
+      <label>Center
+        <select id="dl-center">
+          <option value="gps">My GPS location</option>
+          <option value="map">Map center</option>
+        </select>
+      </label>
+      <label>Radius
+        <select id="dl-radius">
+          <option value="5">5 miles</option>
+          <option value="10" selected>10 miles</option>
+          <option value="20">20 miles</option>
+        </select>
+      </label>
+      <button id="btn-dl-start" class="btn-gold">Download pack</button>
+      <div id="dl-progress" class="hidden"><div id="dl-bar"></div><span id="dl-text"></span></div>
+      <h4>Saved packs</h4>
+      <ul id="dl-list"></ul>
+      <p class="fineprint">Tile imagery © Esri, Maxar, Earthstar Geographics. Game land boundaries: PA Game Commission via PASDA (Jan 2023). For reference only — always verify boundaries and regulations with the PGC.</p>
+    </div>
+    <div id="sgl-card" class="hidden">
+      <button id="sgl-close">×</button>
+      <h3 id="sgl-title"></h3>
+      <div id="sgl-body"></div>
+      <button id="btn-sgl-pin" class="btn-gold">Drop pin here</button>
+    </div>
+  </section>
+
+  <!-- COMPASS TAB -->
+  <section id="tab-compass" class="tab">
+    <div class="page">
+      <h2>Compass</h2>
+      <div id="dial-wrap">
+        <div id="dial">
+          <div id="dial-rose">N</div>
+          <div id="needle"></div>
+        </div>
+        <div id="heading">—°</div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><span class="k">Latitude</span><span class="v" id="c-lat">—</span></div>
+        <div class="stat"><span class="k">Longitude</span><span class="v" id="c-lon">—</span></div>
+        <div class="stat"><span class="k">Altitude</span><span class="v" id="c-alt">—</span></div>
+        <div class="stat"><span class="k">Accuracy</span><span class="v" id="c-acc">—</span></div>
+      </div>
+      <button id="btn-compass-enable" class="btn-gold">Enable compass</button>
+      <p class="muted">On iPhone, tap to grant motion access. Works fully offline — GPS and compass need no signal.</p>
+    </div>
+  </section>
+
+  <!-- WEATHER TAB -->
+  <section id="tab-weather" class="tab">
+    <div class="page">
+      <h2>Weather</h2>
+      <div id="wx-updated" class="muted"></div>
+      <div id="wx-now" class="wx-hero"></div>
+      <div id="wx-wind" class="stat-grid"></div>
+      <h3>Next 24 hours</h3>
+      <div id="wx-hourly" class="hourly"></div>
+      <p class="muted">Source: Open-Meteo. Cached for offline use when you last had signal.</p>
+    </div>
+  </section>
+
+  <!-- HUNT TAB -->
+  <section id="tab-hunt" class="tab">
+    <div class="page">
+      <h2>Today's hunt</h2>
+      <div id="hunt-date" class="muted"></div>
+      <div class="stat-grid">
+        <div class="stat"><span class="k">Sunrise</span><span class="v" id="h-sunrise">—</span></div>
+        <div class="stat"><span class="k">Sunset</span><span class="v" id="h-sunset">—</span></div>
+        <div class="stat wide"><span class="k">Legal shooting hours (approx)</span><span class="v" id="h-legal">—</span></div>
+        <div class="stat"><span class="k">Moon</span><span class="v" id="h-moon">—</span></div>
+        <div class="stat"><span class="k">Illumination</span><span class="v" id="h-illum">—</span></div>
+      </div>
+      <div id="hunt-verdict" class="verdict"></div>
+      <p class="fineprint">Shooting hours ≈ ½ hr before sunrise to ½ hr after sunset for most PA game. Always confirm with the current PGC Hunting &amp; Trapping Digest — rules vary by species and season.</p>
+    </div>
+  </section>
+
+  <!-- PINS TAB -->
+  <section id="tab-pins" class="tab">
+    <div class="page">
+      <h2>Waypoints</h2>
+      <div id="pin-form">
+        <input id="pin-name" placeholder="Name — e.g. North ridge stand" maxlength="60">
+        <select id="pin-type">
+          <option value="stand">Tree stand</option>
+          <option value="parking">Parking</option>
+          <option value="camera">Trail camera</option>
+          <option value="trail">Blood trail</option>
+          <option value="other">Other</option>
+        </select>
+        <div class="row">
+          <button id="btn-pin-here" class="btn-gold">Drop at my location</button>
+          <button id="btn-pin-center" class="btn-ghost">Drop at map center</button>
+        </div>
+      </div>
+      <ul id="pin-list"></ul>
+      <button id="btn-gpx" class="btn-ghost">Export GPX</button>
+    </div>
+  </section>
+
+  <nav id="tabbar">
+    <button data-tab="tab-map" class="active"><span class="ico">◈</span>Map</button>
+    <button data-tab="tab-compass"><span class="ico">🧭</span>Compass</button>
+    <button data-tab="tab-weather"><span class="ico">☁</span>Weather</button>
+    <button data-tab="tab-hunt"><span class="ico">🌙</span>Hunt</button>
+    <button data-tab="tab-pins"><span class="ico">📍</span>Pins</button>
+  </nav>
+</div>
+
+<script src="js/vendor/maplibre-gl.js"></script>
+<script src="js/util.js"></script>
+<script src="js/store.js"></script>
+<script src="js/map.js"></script>
+<script src="js/offline.js"></script>
+<script src="js/compass.js"></script>
+<script src="js/weather.js"></script>
+<script src="js/hunt.js"></script>
+<script src="js/waypoints.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
