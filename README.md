@@ -1,5 +1,7 @@
 # BullHunt — PA Game Lands hunting app
 
+![BullHunt banner](assets/banner.jpg)
+
 An offline-first hunting companion for Pennsylvania State Game Lands, built as a
 progressive web app (PWA) wrapped with Capacitor for the iOS App Store.
 
