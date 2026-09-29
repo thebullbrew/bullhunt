@@ -1,5 +1,7 @@
 # BullHunt — PA Game Lands hunting app
 
+![preview](assets/preview.png)
+
 ![BullHunt banner](assets/banner.jpg)
 
 An offline-first hunting companion for Pennsylvania State Game Lands, built as a
