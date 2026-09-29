@@ -5,7 +5,7 @@
 An offline-first hunting companion for Pennsylvania State Game Lands, built as a
 progressive web app (PWA) wrapped with Capacitor for the iOS App Store.
 
-**Project:** `~/workspace/hunting-app/` · Web app: `www/` · iOS project: `ios/`
+**Project:** `~/workspace/hunting-app/` · Web app: `docs/` · iOS project: `ios/`
 App name: **BullHunt** · Bundle ID: `com.thebullbrew.bullhunt`
 
 ## Features
@@ -43,7 +43,7 @@ App name: **BullHunt** · Bundle ID: `com.thebullbrew.bullhunt`
 ## Run it now (PWA)
 
 ```bash
-cd ~/workspace/hunting-app/www
+cd ~/workspace/hunting-app/docs
 python3 -m http.server 8000
 # open http://localhost:8000 — or serve over LAN and "Add to Home Screen" on iPhone
 ```
@@ -90,6 +90,6 @@ capacitor.config.ts
 ```bash
 cd ~/workspace/hunting-app/data
 python3 get_sgl.py      # re-download from PASDA
-python3 simplify.py     # simplify + copy into www/data/
+python3 simplify.py     # simplify + copy into docs/data/
 cd .. && npx cap sync ios
 ```
